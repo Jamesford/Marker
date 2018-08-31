@@ -6,7 +6,8 @@ import Html.Events exposing (onInput)
 import Markdown
 import Browser
 
--- main : Program Never Model Msg
+
+main : Program () Model Msg
 main =
   Browser.sandbox
     { init = model
