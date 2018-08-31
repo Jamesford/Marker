@@ -4,11 +4,12 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Markdown
+import Browser
 
-main : Program Never Model Msg
+-- main : Program Never Model Msg
 main =
-  Html.beginnerProgram
-    { model = model
+  Browser.sandbox
+    { init = model
     , view = view
     , update = update
     }
@@ -31,19 +32,19 @@ type Msg
     = Name String
 
 update : Msg -> Model -> Model
-update msg model =
+update msg m =
   case msg of
     Name content ->
-      { model | content = content }
+      { m | content = content }
 
 
 -- VIEW
 
 view : Model -> Html Msg
-view model =
+view m =
   div [ class "wrapper" ]
-    [ textarea [ placeholder "Write something...", onInput Name, class "editor" ] [ text model.content ]
-    , Markdown.toHtml [ class "markdown-body" ] model.content
+    [ textarea [ placeholder "Write something...", onInput Name, class "editor" ] [ text m.content ]
+    , Markdown.toHtml [ class "markdown-body" ] m.content
     ]
 
 
