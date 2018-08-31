@@ -4,14 +4,27 @@
 <head>
   <meta charset='utf-8'>
   <link rel='stylesheet' href='style.css'>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
   <script src='marker.js'></script>
 </head>
 
 <body>
   <script>
-    Elm.Marker.init({
-      node: document.querySelector('body')
+    // Init Elm App
+    var app = Elm.Marker.init({
+      node: document.querySelector('body'),
+      flags: {
+        content: localStorage.getItem('content') || ''
+      }
     })
+
+    // Throttle in Elm seems like a PitA atm, do it in js
+    var onSave = _.throttle(content => {
+      localStorage.setItem('content', content)
+    }, 5000)
+
+    // Subscribe to Elm port
+    app.ports.save.subscribe(onSave)
   </script>
 </body>
 
