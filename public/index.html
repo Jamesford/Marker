@@ -10,11 +10,24 @@
 
 <body>
   <script>
+    let content = localStorage.getItem('content')
+    if (content === null) {
+      content = `# This is Markdown
+
+[Markdown](http://daringfireball.net/projects/markdown/) lets you write content in a really natural way.
+
+  * You can have lists, like this one
+  * Make things **bold** or *italic*
+  * Embed snippets of \`code\`
+  * Create [links](/)
+  * ...`
+    }
+
     // Init Elm App
     var app = Elm.Marker.init({
       node: document.querySelector('body'),
       flags: {
-        content: localStorage.getItem('content') || ''
+        content: content
       }
     })
 
