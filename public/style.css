@@ -5,7 +5,7 @@ body {
 .header {
   background: cornflowerblue;
   box-shadow: 0px 1px 5px 2px rgba(0, 0, 0, 0.25);
-  z-index: 999;
+  z-index: 9;
   position: relative;
 
   display: flex;
@@ -14,6 +14,7 @@ body {
 }
 
 .title {
+  cursor: default;
   color: white;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 2em;
@@ -22,7 +23,26 @@ body {
   padding: 10px;
 }
 
+.controls {
+  display: flex;
+}
+
+.add {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  padding: 0 20px;
+}
+
+.add:hover {
+  background: #5683d4;
+}
+
 .dropdown {
+  cursor: default;
   position: relative;
   display: flex;
   justify-content: center;
@@ -53,14 +73,35 @@ body {
 
 .list > li {
   background: cornflowerblue;
+  /* padding: 10px 20px; */
+  display: flex;
+}
+
+.list > li > div.item {
+  flex-grow: 1;
   padding: 10px 20px;
 }
 
-.list > li:hover {
+.list > li > div.del {
+  padding: 10px;
+}
+
+.list > li > div.item:hover {
   background: #5683d4;
 }
 
+.list > li > div.del:hover {
+  background: #ff6262;
+}
+/* .list > li:hover {
+  background: #5683d4;
+} */
+
 .list > li:last-child {
+  border-bottom-left-radius: 5px;
+}
+
+.list > li:last-child > div.item {
   border-bottom-left-radius: 5px;
 }
 
@@ -69,6 +110,7 @@ body {
 }
 
 .editor {
+  resize: none;
   position: relative;
   background: #efefef;
   /* background: transparent; */
@@ -98,6 +140,83 @@ body {
     height: calc(100vh - 30px - 58px);
     padding: 15px;
   }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.modal {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  position: fixed;
+  z-index: 99;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-bg {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-body {
+  z-index: 999;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0px 1px 5px 2px rgba(0, 0, 0, 0.25);
+  height: 170px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.modal-body > h2 {
+  margin: 5px;
+}
+
+.modal-body > input {
+  margin-left: 10px;
+  font-size: 1em;
+  border: none;
+  border-bottom: 1px solid lightgray;
+  transition: border-color 0.15s linear;
+}
+
+.modal-body > input:focus {
+  border-color: cornflowerblue;
+  border-width: 1px;
+  outline: none;
+}
+
+.modal-body > .controls > .btn {
+  cursor: pointer;
+  border: 1px solid lightgrey;
+  padding: 5px 10px;
+  margin: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8em;
+  transition: all 0.15s linear;
+}
+
+.modal-body > .controls > button.btn[disabled] {
+  background: #b5b5b5;
+  color: white;
+  border-color: #a4a4a4;
+}
+
+.modal-body > .controls > .btn.create {
+  background: cornflowerblue;
+  color: white;
+  border-color: #5683d4;
 }
 
 /*

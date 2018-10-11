@@ -10,16 +10,30 @@
 
 <body>
   <script>
+    const default_content = `# This is Markdown
+[Markdown](http://daringfireball.net/projects/markdown/) lets you write content in a really natural way.
+  * You can have lists, like this one
+  * Make things **bold** or *italic*
+  * Embed snippets of \`code\`
+  * Create [links](/)
+  * ...`
+
     // Grab initial data from localStorage
     let list = localStorage.getItem('list') || "[]"
     list = JSON.parse(list)
-
-    const selected = list && list.length > 0
+    let selected = list && list.length > 0
       ? list[0]
-      : ''
-    const content = list && list.length > 0
+      : 'default'
+    let content = list && list.length > 0
       ? localStorage.getItem(list[0])
-      : ''
+      : default_content
+
+    // List was empty, create default list & default content
+    if (list.length === 0) {
+      list = ['default']
+      localStorage.setItem('list', JSON.stringify(list))
+      localStorage.setItem('default', default_content)
+    }
 
     // Init Elm App
     var app = Elm.Marker.init({
@@ -29,21 +43,41 @@
 
     // Save Content
     const onSave = ([selected, content]) => {
-      console.log('saving...', selected)
       localStorage.setItem(selected, content)
     }
 
     // Debounce in Elm seems like a PitA atm, do it in js
     const onAutoSave = _.debounce(onSave, 500)
 
-    // Subscribe to Elm ports
+    // Handle save ports
     app.ports.save.subscribe(onSave)
-
     app.ports.autosave.subscribe(onAutoSave)
 
+    // Get content from localStorage on select port
     app.ports.select.subscribe((item) => {
       const content = localStorage.getItem(item) || ''
       app.ports.loadContent.send(content)
+    })
+
+    // Update localStorage on create port
+    app.ports.create.subscribe((item) => {
+      let list = localStorage.getItem('list') || "[]"
+      list = JSON.parse(list)
+      list.push(item)
+      localStorage.setItem('list', JSON.stringify(list))
+      localStorage.setItem(item, '')
+      app.ports.loadList.send(list)
+      app.ports.loadContent.send('')
+    })
+
+    // Update localStorage on delete port
+    app.ports.delete.subscribe((item) => {
+      let list = localStorage.getItem('list') || "[]"
+      list = JSON.parse(list)
+      list = list.filter(name => item !== name)
+      localStorage.setItem('list', JSON.stringify(list))
+      localStorage.removeItem(item)
+      app.ports.loadList.send(list)
     })
   </script>
 </body>
