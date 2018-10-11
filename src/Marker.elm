@@ -108,6 +108,7 @@ viewDropdownList selected list =
     |> List.map (viewDropdownItem)
     |> ul [ class "list" ]
 
+viewDropdownItem : String -> Html Msg
 viewDropdownItem item =
   li []
     [ div [ class "item", onClick (Select item) ] [ text item ]
