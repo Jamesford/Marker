@@ -10,34 +10,41 @@
 
 <body>
   <script>
-    let content = localStorage.getItem('content')
-    if (content === null) {
-      content = `# This is Markdown
+    // Grab initial data from localStorage
+    let list = localStorage.getItem('list') || "[]"
+    list = JSON.parse(list)
 
-[Markdown](http://daringfireball.net/projects/markdown/) lets you write content in a really natural way.
-
-  * You can have lists, like this one
-  * Make things **bold** or *italic*
-  * Embed snippets of \`code\`
-  * Create [links](/)
-  * ...`
-    }
+    const selected = list && list.length > 0
+      ? list[0]
+      : ''
+    const content = list && list.length > 0
+      ? localStorage.getItem(list[0])
+      : ''
 
     // Init Elm App
     var app = Elm.Marker.init({
       node: document.querySelector('body'),
-      flags: {
-        content: content
-      }
+      flags: { list, selected, content }
     })
 
-    // Throttle in Elm seems like a PitA atm, do it in js
-    var onSave = _.throttle(content => {
-      localStorage.setItem('content', content)
-    }, 5000)
+    // Save Content
+    const onSave = ([selected, content]) => {
+      console.log('saving...', selected)
+      localStorage.setItem(selected, content)
+    }
 
-    // Subscribe to Elm port
+    // Debounce in Elm seems like a PitA atm, do it in js
+    const onAutoSave = _.debounce(onSave, 500)
+
+    // Subscribe to Elm ports
     app.ports.save.subscribe(onSave)
+
+    app.ports.autosave.subscribe(onAutoSave)
+
+    app.ports.select.subscribe((item) => {
+      const content = localStorage.getItem(item) || ''
+      app.ports.loadContent.send(content)
+    })
   </script>
 </body>
 
