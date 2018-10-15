@@ -119,9 +119,17 @@ viewEditor : Model -> Html Msg
 viewEditor m =
   textarea [ placeholder "Write something...", onInput Content, class "editor", value m.content] []
 
+previewOptions : Markdown.Options
+previewOptions =
+    { githubFlavored = Just { tables = True, breaks = False }
+    , defaultHighlighting = Nothing
+    , sanitize = True
+    , smartypants = False
+    }
+
 viewPreview : Model -> Html Msg
 viewPreview m =
-  Markdown.toHtml [ class "markdown-body" ] m.content
+  Markdown.toHtmlWith previewOptions [ class "markdown-body" ] m.content
 
 viewModal : Model -> Html Msg
 viewModal m =
