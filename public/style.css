@@ -27,18 +27,21 @@ body {
   display: flex;
 }
 
-.add {
+.button {
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
-  font-weight: bold;
   padding: 0 20px;
 }
 
-.add:hover {
+.button:hover {
   background: #5683d4;
+}
+
+.add {
+  font-weight: bold;
 }
 
 .dropdown {
@@ -116,6 +119,7 @@ body {
   outline: none;
   padding: 45px;
   width: 50%;
+  margin: 0 auto;
 }
 
 .markdown-body {
