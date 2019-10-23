@@ -24,17 +24,23 @@ main =
 
 -- MODEL
 
+type ToggleState
+  = Both
+  | Edit
+  | View
+
 type alias Model =
   { list : List String
   , selected : String
   , content : String
   , modal : Bool
   , name : String
+  , toggle : ToggleState
   }
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-  (Model flags.list flags.selected flags.content False "", Cmd.none)
+  (Model flags.list flags.selected flags.content False "" Both, Cmd.none)
 
 
 -- UPDATE
@@ -47,6 +53,7 @@ type Msg
     | Name String
     | Create
     | Delete String
+    | Toggle ToggleState
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg m =
@@ -65,6 +72,8 @@ update msg m =
       ({ m | selected = m.name, modal = False, name = "" }, create m.name)
     Delete name ->
       (m, delete name)
+    Toggle state ->
+      ({ m | toggle = state}, Cmd.none)
 
 
 -- VIEW
@@ -73,10 +82,7 @@ view : Model -> Html Msg
 view model =
   div []
     [ viewHeader model
-    , div [ class "wrapper" ]
-      [ viewEditor model
-      , viewPreview model
-      ]
+    , div [ class "wrapper" ] (viewMain model)
     , viewModal model
     ]
 
@@ -90,7 +96,10 @@ viewHeader m =
 viewControls : Model -> Html Msg
 viewControls m =
   div [ class "controls" ]
-    [ div [ class "add", onClick (Modal True) ] [ text "+" ]
+    [ div [ class "button", onClick (Toggle Edit)] [ text "Edit" ]
+    , div [ class "button", onClick (Toggle Both)] [ text "Both" ]
+    , div [ class "button", onClick (Toggle View)] [ text "View" ]
+    , div [ class "button add", onClick (Modal True) ] [ text "+" ]
     , viewDropdown m.selected m.list
     ]
 
@@ -114,6 +123,16 @@ viewDropdownItem item =
     [ div [ class "item", onClick (Select item) ] [ text item ]
     , div [ class "del", onClick (Delete item) ] [ text "×" ]
     ]
+
+viewMain : Model -> List (Html Msg)
+viewMain m =
+  case m.toggle of
+    Both ->
+      [(viewEditor m), (viewPreview m)]
+    Edit ->
+      [(viewEditor m)]
+    View ->
+      [(viewPreview m)]
 
 viewEditor : Model -> Html Msg
 viewEditor m =
