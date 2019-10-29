@@ -82,7 +82,7 @@ view : Model -> Html Msg
 view model =
   div []
     [ viewHeader model
-    , div [ class "wrapper" ] (viewMain model)
+    , viewMain model
     , viewModal model
     ]
 
@@ -95,10 +95,19 @@ viewHeader m =
 
 viewControls : Model -> Html Msg
 viewControls m =
+  let
+    (eb, bb, vb) = case m.toggle of
+      Edit ->
+        ("button active", "button", "button")
+      Both ->
+        ("button", "button active", "button")
+      View ->
+        ("button", "button", "button active")
+  in
   div [ class "controls" ]
-    [ div [ class "button", onClick (Toggle Edit)] [ text "Edit" ]
-    , div [ class "button", onClick (Toggle Both)] [ text "Both" ]
-    , div [ class "button", onClick (Toggle View)] [ text "View" ]
+    [ div [ class eb, onClick (Toggle Edit)] [ text "Edit" ]
+    , div [ class bb, onClick (Toggle Both)] [ text "Both" ]
+    , div [ class vb, onClick (Toggle View)] [ text "View" ]
     , div [ class "button add", onClick (Modal True) ] [ text "+" ]
     , viewDropdown m.selected m.list
     ]
@@ -124,15 +133,18 @@ viewDropdownItem item =
     , div [ class "del", onClick (Delete item) ] [ text "×" ]
     ]
 
-viewMain : Model -> List (Html Msg)
+viewMain : Model -> Html Msg
 viewMain m =
-  case m.toggle of
-    Both ->
-      [(viewEditor m), (viewPreview m)]
-    Edit ->
-      [(viewEditor m)]
-    View ->
-      [(viewPreview m)]
+  let
+    (subview, wrapper) = case m.toggle of
+      Both ->
+        ([(viewEditor m), (viewPreview m "markdown-body overflow")], "wrapper")
+      View ->
+        ([(viewPreview m "markdown-body")], "wrapper overflow")
+      Edit ->
+        ([(viewEditor m)], "wrapper")
+  in
+    div [ class wrapper ] subview
 
 viewEditor : Model -> Html Msg
 viewEditor m =
@@ -146,9 +158,9 @@ previewOptions =
     , smartypants = False
     }
 
-viewPreview : Model -> Html Msg
-viewPreview m =
-  Markdown.toHtmlWith previewOptions [ class "markdown-body" ] m.content
+viewPreview : Model -> String -> Html Msg
+viewPreview m classes =
+  Markdown.toHtmlWith previewOptions [ class classes ] m.content
 
 viewModal : Model -> Html Msg
 viewModal m =
