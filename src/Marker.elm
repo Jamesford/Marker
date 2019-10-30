@@ -24,17 +24,23 @@ main =
 
 -- MODEL
 
+type ToggleState
+  = Both
+  | Edit
+  | View
+
 type alias Model =
   { list : List String
   , selected : String
   , content : String
   , modal : Bool
   , name : String
+  , toggle : ToggleState
   }
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-  (Model flags.list flags.selected flags.content False "", Cmd.none)
+  (Model flags.list flags.selected flags.content False "" Both, Cmd.none)
 
 
 -- UPDATE
@@ -47,6 +53,7 @@ type Msg
     | Name String
     | Create
     | Delete String
+    | Toggle ToggleState
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg m =
@@ -65,6 +72,8 @@ update msg m =
       ({ m | selected = m.name, modal = False, name = "" }, create m.name)
     Delete name ->
       (m, delete name)
+    Toggle state ->
+      ({ m | toggle = state}, Cmd.none)
 
 
 -- VIEW
@@ -73,10 +82,7 @@ view : Model -> Html Msg
 view model =
   div []
     [ viewHeader model
-    , div [ class "wrapper" ]
-      [ viewEditor model
-      , viewPreview model
-      ]
+    , viewMain model
     , viewModal model
     ]
 
@@ -89,8 +95,20 @@ viewHeader m =
 
 viewControls : Model -> Html Msg
 viewControls m =
+  let
+    (eb, bb, vb) = case m.toggle of
+      Edit ->
+        ("button active", "button", "button")
+      Both ->
+        ("button", "button active", "button")
+      View ->
+        ("button", "button", "button active")
+  in
   div [ class "controls" ]
-    [ div [ class "add", onClick (Modal True) ] [ text "+" ]
+    [ div [ class eb, onClick (Toggle Edit)] [ text "Edit" ]
+    , div [ class bb, onClick (Toggle Both)] [ text "Both" ]
+    , div [ class vb, onClick (Toggle View)] [ text "View" ]
+    , div [ class "button add", onClick (Modal True) ] [ text "+" ]
     , viewDropdown m.selected m.list
     ]
 
@@ -115,13 +133,34 @@ viewDropdownItem item =
     , div [ class "del", onClick (Delete item) ] [ text "×" ]
     ]
 
+viewMain : Model -> Html Msg
+viewMain m =
+  let
+    (subview, wrapper) = case m.toggle of
+      Both ->
+        ([(viewEditor m), (viewPreview m "markdown-body overflow")], "wrapper")
+      View ->
+        ([(viewPreview m "markdown-body")], "wrapper overflow")
+      Edit ->
+        ([(viewEditor m)], "wrapper")
+  in
+    div [ class wrapper ] subview
+
 viewEditor : Model -> Html Msg
 viewEditor m =
   textarea [ placeholder "Write something...", onInput Content, class "editor", value m.content] []
 
-viewPreview : Model -> Html Msg
-viewPreview m =
-  Markdown.toHtml [ class "markdown-body" ] m.content
+previewOptions : Markdown.Options
+previewOptions =
+    { githubFlavored = Just { tables = True, breaks = False }
+    , defaultHighlighting = Nothing
+    , sanitize = True
+    , smartypants = False
+    }
+
+viewPreview : Model -> String -> Html Msg
+viewPreview m classes =
+  Markdown.toHtmlWith previewOptions [ class classes ] m.content
 
 viewModal : Model -> Html Msg
 viewModal m =
